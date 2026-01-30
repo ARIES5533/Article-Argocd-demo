@@ -2,7 +2,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: aux-deployment
-  namespace: aux-service-ns
+  namespace: argocd-demo-ns
   labels:
     app: aux-service
 spec:

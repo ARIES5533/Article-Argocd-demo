@@ -2,7 +2,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: aux-service
-  namespace: aux-service-ns
+  namespace: argocd-demo-ns
 spec:
   selector:
     app: aux-service

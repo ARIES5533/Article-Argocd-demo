@@ -13,12 +13,9 @@ spec:
     repoURL: https://github.com/ARIES5533/Article-Argocd-demo.git
     targetRevision: HEAD
     path: Kubernetes-manifest
-    kustomize:
-      namePrefix: ""
-
   destination:
     server: https://kubernetes.default.svc
-    namespace: ""
+    namespace: argocd-demo-ns
 
 
   syncPolicy:

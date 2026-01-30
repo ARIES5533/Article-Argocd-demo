@@ -2,7 +2,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: main-deployment
-  namespace: main-service-ns
+  namespace: argocd-demo-ns
   labels:
     app: main-service
 spec:
