@@ -8,7 +8,7 @@ on:
 jobs:
   docker_build:
     name: Build & Push Services to DockerHub
-    environment: test
+    environment: argocd-demo
     runs-on: ubuntu-latest
     permissions:
       contents: write
