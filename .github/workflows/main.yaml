@@ -1,4 +1,4 @@
-name: Application Deployment To EKS
+name: Build and Push Image to DockerHub
 
 on:
   push:
