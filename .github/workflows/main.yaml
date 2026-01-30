@@ -1,0 +1,76 @@
+name: Application Deployment To EKS
+
+on:
+  push:
+    branches:
+      - cloud-challenge
+      - main
+
+jobs:
+  docker_build:
+    name: Build & Push Services to DockerHub
+    environment: test
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    env:
+      DOCKER_USER: ${{ secrets.DOCKERHUB_USERNAME }}
+      RUN_TAG: ${{ github.run_number }}
+
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v3 
+
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ env.DOCKER_USER }}
+          password: ${{ secrets.DOCKERHUB_PASSWORD }}
+
+      - name: Build and Push Auxiliary Service (aux-service)
+        run: |
+          AUX_IMAGE=${{ env.DOCKER_USER }}/aux-service
+          
+  
+          docker build . --file auxiliary-service/Dockerfile -t ${AUX_IMAGE}:latest -t ${AUX_IMAGE}:${{ env.RUN_TAG }}
+          
+          # Push both tags
+          docker push ${AUX_IMAGE}:latest
+          docker push ${AUX_IMAGE}:${{ env.RUN_TAG }}
+
+      - name: Build and Push Main API Service (main-service)
+        run: |
+          MAIN_IMAGE=${{ env.DOCKER_USER }}/main-service
+
+          docker build . --file main-api/Dockerfile -t ${MAIN_IMAGE}:latest -t ${MAIN_IMAGE}:${{ env.RUN_TAG }}
+          
+          # Push both tags
+          docker push ${MAIN_IMAGE}:latest
+          docker push ${MAIN_IMAGE}:${{ env.RUN_TAG }}
+
+      - name: Install Kustomize CLI
+        run: |
+          curl -s "https://raw.githubusercontent.com/kubernetes-sigs/kustomize/master/hack/install_kustomize.sh" | bash
+          sudo mv kustomize /usr/local/bin/
+
+      # Update Manifests
+      - name: Update Kustomize Manifests
+        run: |
+          TAG=${{ env.RUN_TAG }}
+          DOCKER_USER=${{ env.DOCKER_USER }}
+          
+          cd k8s
+          /usr/local/bin/kustomize edit set image \
+            $DOCKER_USER/aux-service=$DOCKER_USER/aux-service:$TAG \
+            $DOCKER_USER/main-service=$DOCKER_USER/main-service:$TAG
+          
+          cd ..
+          
+      # Commit and Push the Manifest Change
+      - name: Commit and Push Manifest Changes
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          file_pattern: k8s/kustomization.yaml
+          commit_user_name: github-actions[bot]
+          commit_user_email: github-actions[bot]@users.noreply.github.com
+          commit_message: "GitOps: Automated manifest update for tag ${{ env.RUN_TAG }} [skip ci]"

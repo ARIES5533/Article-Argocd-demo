@@ -1,0 +1,20 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+resources:
+- auxiliary-service/aux-api.yaml
+- auxiliary-service/aux-service.yaml
+- auxiliary-service/aux-service-hpa.yaml
+- auxiliary-service/aux-service-pdb.yaml
+- main-api/main-api-hpa.yaml
+- main-api/main-api-pdb.yaml
+- main-api/main-api.yaml
+- main-api/main-service.yaml
+
+images:
+- name: aries5533/aux-service
+  newName: aries5533/aux-service
+  newTag: "65"
+- name: aries5533/main-service
+  newName: aries5533/main-service
+  newTag: "65"

@@ -1,0 +1,36 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: main-deployment
+  namespace: main-service-ns
+  labels:
+    app: main-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: main-service
+  template:
+    metadata:
+      labels:
+        app: main-service
+    spec:
+      containers:
+      - name: main-service
+        image: aries5533/main-service:7
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 8000
+        env:
+        - name: MAIN_SERVICE_VERSION
+          value: "1.0.0"
+        - name: AUX_SERVICE_URL
+          value: "http://aux-service.aux-service-ns:8001"
+
+        resources:
+          requests:
+            cpu: "100m"
+            memory: "128Mi"
+          limits:
+            cpu: "400m"
+            memory: "384Mi"
