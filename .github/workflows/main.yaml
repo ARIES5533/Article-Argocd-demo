@@ -47,29 +47,4 @@ jobs:
           docker push ${MAIN_IMAGE}:latest
           docker push ${MAIN_IMAGE}:${{ env.RUN_TAG }}
 
-      # - name: Install Kustomize CLI
-      #   run: |
-      #     curl -s "https://raw.githubusercontent.com/kubernetes-sigs/kustomize/master/hack/install_kustomize.sh" | bash
-      #     sudo mv kustomize /usr/local/bin/
-
-      # # Update Manifests
-      # - name: Update Kustomize Manifests
-      #   run: |
-      #     TAG=${{ env.RUN_TAG }}
-      #     DOCKER_USER=${{ env.DOCKER_USER }}
-          
-      #     cd k8s
-      #     /usr/local/bin/kustomize edit set image \
-      #       $DOCKER_USER/aux-service=$DOCKER_USER/aux-service:$TAG \
-      #       $DOCKER_USER/main-service=$DOCKER_USER/main-service:$TAG
-          
-      #     cd ..
-          
-      # # Commit and Push the Manifest Change
-      # - name: Commit and Push Manifest Changes
-      #   uses: stefanzweifel/git-auto-commit-action@v5
-      #   with:
-      #     file_pattern: k8s/kustomization.yaml
-      #     commit_user_name: github-actions[bot]
-      #     commit_user_email: github-actions[bot]@users.noreply.github.com
-      #     commit_message: "GitOps: Automated manifest update for tag ${{ env.RUN_TAG }} [skip ci]"
+      

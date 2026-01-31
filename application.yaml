@@ -5,6 +5,9 @@ metadata:
   namespace: argocd
   annotations:
     argocd.argoproj.io/repo-status-check-interval: "30s"
+    argocd-image-updater.argoproj.io/image-list: app1=aries5533/main-service, app2=aries5533/aux-service 
+    argocd-image-updater.argoproj.io/app1.update-strategy: latest
+    argocd-image-updater.argoproj.io/app2.update-strategy: latest
     
 spec:
   project: default
