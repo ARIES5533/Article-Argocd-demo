@@ -16,7 +16,7 @@ spec:
 
   source:
     repoURL: https://github.com/ARIES5533/Article-Argocd-demo.git
-    targetRevision: gitops
+    targetRevision: HEAD
     path: Kubernetes-manifest
   destination:
     server: https://kubernetes.default.svc
