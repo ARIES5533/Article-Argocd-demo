@@ -5,16 +5,18 @@ metadata:
   namespace: argocd
   annotations:
     argocd.argoproj.io/repo-status-check-interval: "30s"
-    argocd-image-updater.argoproj.io/image-list: app1=aries5533/main-service, app2=aries5533/aux-service 
-    argocd-image-updater.argoproj.io/app1.update-strategy: latest
-    argocd-image-updater.argoproj.io/app2.update-strategy: latest
+    argocd-image-updater.argoproj.io/image-list: main-service=aries5533/main-service, aux-service=aries5533/aux-service
+    argocd-image-updater.argoproj.io/main-service.update-strategy: latest
+    argocd-image-updater.argoproj.io/aux-service.update-strategy: latest
+    argocd-image-updater.argoproj.io/write-back-method: git
+    argocd-image-updater.argoproj.io/git-branch: gitops
     
 spec:
   project: default
 
   source:
     repoURL: https://github.com/ARIES5533/Article-Argocd-demo.git
-    targetRevision: HEAD
+    targetRevision: gitops
     path: Kubernetes-manifest
   destination:
     server: https://kubernetes.default.svc
