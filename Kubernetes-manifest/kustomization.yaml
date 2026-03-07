@@ -6,3 +6,8 @@ resources:
   - aux-api.yaml
   - aux-service.yaml
   - service-account.yaml
+images:
+  - name: aries5533/main-service
+    newTag: "11"
+  - name: aries5533/aux-service
+    newTag: "11"
