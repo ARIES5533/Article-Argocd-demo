@@ -2,10 +2,7 @@ apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 resources:
   - main-api.yaml
-  - main-service.yaml
   - aux-api.yaml
-  - aux-service.yaml
-  - service-account.yaml
 images:
   - name: aries5533/main-service
     newTag: "11"
