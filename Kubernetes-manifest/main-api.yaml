@@ -4,7 +4,7 @@ metadata:
   name: main-deployment
   namespace: argocd-demo-ns
 spec:
-  replicas: 1
+  replicas: 2
   selector:
     matchLabels:
       app: main-api
