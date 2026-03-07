@@ -3,8 +3,6 @@ kind: Application
 metadata:
   name: gitops-argocd-demo
   namespace: argocd
-  annotations:
-    argocd.argoproj.io/repo-status-check-interval: "30s"
 spec:
   project: default
 
