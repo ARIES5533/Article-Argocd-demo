@@ -10,18 +10,30 @@ on:
 
 jobs:
   docker_build:
-    name: Build & Push Services to DockerHub
+    name: Build & Push ${{ matrix.service }}
     environment: argocd-demo
     runs-on: ubuntu-latest
     permissions:
       contents: write
+
+    strategy:
+      matrix:
+        include:
+          - service: aux-service
+            dockerfile: auxiliary-service/Dockerfile
+          - service: main-service
+            dockerfile: main-api/Dockerfile
+
     env:
       DOCKER_USER: ${{ secrets.DOCKERHUB_USERNAME }}
       RUN_TAG: ${{ github.run_number }}
 
     steps:
       - name: Check out code
-        uses: actions/checkout@v3 
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
 
       - name: Login to Docker Hub
         uses: docker/login-action@v3
@@ -29,25 +41,12 @@ jobs:
           username: ${{ env.DOCKER_USER }}
           password: ${{ secrets.DOCKERHUB_PASSWORD }}
 
-      - name: Build and Push Auxiliary Service (aux-service)
-        run: |
-          AUX_IMAGE=${{ env.DOCKER_USER }}/aux-service
-          
-  
-          docker build . --file auxiliary-service/Dockerfile -t ${AUX_IMAGE}:latest -t ${AUX_IMAGE}:${{ env.RUN_TAG }}
-          
-          # Push both tags
-          docker push ${AUX_IMAGE}:latest
-          docker push ${AUX_IMAGE}:${{ env.RUN_TAG }}
-
-      - name: Build and Push Main API Service (main-service)
-        run: |
-          MAIN_IMAGE=${{ env.DOCKER_USER }}/main-service
-
-          docker build . --file main-api/Dockerfile -t ${MAIN_IMAGE}:latest -t ${MAIN_IMAGE}:${{ env.RUN_TAG }}
-          
-          # Push both tags
-          docker push ${MAIN_IMAGE}:latest
-          docker push ${MAIN_IMAGE}:${{ env.RUN_TAG }}
-
-      
+      - name: Build and Push ${{ matrix.service }}
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: ${{ matrix.dockerfile }}
+          push: true
+          tags: ${{ env.DOCKER_USER }}/${{ matrix.service }}:${{ env.RUN_TAG }}
+          cache-from: type=gha,scope=${{ matrix.service }}
+          cache-to: type=gha,mode=max,scope=${{ matrix.service }}
