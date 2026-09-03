@@ -1,33 +1,27 @@
-name: Build and Push Image to DockerHub
+name: Build and Push Images to DockerHub
 
 on:
   push:
     branches:
       - main
-    # Skip builds for image updater commits
+    # Skip builds for ArgoCD Image Updater git write-back commits
     paths-ignore:
       - 'Kubernetes-manifest/**'
 
 jobs:
-  docker_build:
-    name: Build & Push ${{ matrix.service }}
-    environment: argocd-demo
+  build-main-service:
+    name: Build & Push main-service
+    # Only run when main-api source changes
+    if: |
+      contains(toJson(github.event.commits.*.modified), 'main-api/') ||
+      contains(toJson(github.event.commits.*.added), 'main-api/')
     runs-on: ubuntu-latest
+    environment: argocd-demo
     permissions:
       contents: write
-
-    strategy:
-      matrix:
-        include:
-          - service: aux-service
-            dockerfile: auxiliary-service/Dockerfile
-          - service: main-service
-            dockerfile: main-api/Dockerfile
-
     env:
       DOCKER_USER: ${{ secrets.DOCKERHUB_USERNAME }}
       RUN_TAG: ${{ github.run_number }}
-
     steps:
       - name: Check out code
         uses: actions/checkout@v4
@@ -41,12 +35,48 @@ jobs:
           username: ${{ env.DOCKER_USER }}
           password: ${{ secrets.DOCKERHUB_PASSWORD }}
 
-      - name: Build and Push ${{ matrix.service }}
+      - name: Build and Push main-service
         uses: docker/build-push-action@v6
         with:
           context: .
-          file: ${{ matrix.dockerfile }}
+          file: main-api/Dockerfile
           push: true
-          tags: ${{ env.DOCKER_USER }}/${{ matrix.service }}:${{ env.RUN_TAG }}
-          cache-from: type=gha,scope=${{ matrix.service }}
-          cache-to: type=gha,mode=max,scope=${{ matrix.service }}
+          tags: ${{ env.DOCKER_USER }}/main-service:${{ env.RUN_TAG }}
+          cache-from: type=gha,scope=main-service
+          cache-to: type=gha,mode=max,scope=main-service
+
+  build-aux-service:
+    name: Build & Push aux-service
+    # Only run when auxiliary-service source changes
+    if: |
+      contains(toJson(github.event.commits.*.modified), 'auxiliary-service/') ||
+      contains(toJson(github.event.commits.*.added), 'auxiliary-service/')
+    runs-on: ubuntu-latest
+    environment: argocd-demo
+    permissions:
+      contents: write
+    env:
+      DOCKER_USER: ${{ secrets.DOCKERHUB_USERNAME }}
+      RUN_TAG: ${{ github.run_number }}
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ env.DOCKER_USER }}
+          password: ${{ secrets.DOCKERHUB_PASSWORD }}
+
+      - name: Build and Push aux-service
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: auxiliary-service/Dockerfile
+          push: true
+          tags: ${{ env.DOCKER_USER }}/aux-service:${{ env.RUN_TAG }}
+          cache-from: type=gha,scope=aux-service
+          cache-to: type=gha,mode=max,scope=aux-service

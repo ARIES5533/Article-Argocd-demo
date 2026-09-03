@@ -14,10 +14,30 @@ spec:
         app: main-api
     spec:
       containers:
-      - name: main-service
-        image: aries5533/main-service:latest
-        ports:
-        - containerPort: 80
+        - name: main-service
+          # Tag is managed automatically by ArgoCD Image Updater via kustomization.yaml
+          image: aries5533/main-service
+          ports:
+            - containerPort: 80
+          resources:
+            requests:
+              cpu: "50m"
+              memory: "64Mi"
+            limits:
+              cpu: "200m"
+              memory: "128Mi"
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 80
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /
+              port: 80
+            initialDelaySeconds: 10
+            periodSeconds: 15
 ---
 apiVersion: v1
 kind: Service
@@ -27,7 +47,7 @@ metadata:
 spec:
   type: LoadBalancer
   ports:
-  - port: 80
-    targetPort: 80
+    - port: 80
+      targetPort: 80
   selector:
     app: main-api
